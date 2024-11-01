@@ -9,7 +9,8 @@ const Users = db.define('users',{
         defaultValue: DataTypes.UUIDV4,
         allowNull: false,
         validate:{
-            notEmpty: true
+            notEmpty: true,
+            len: [3, 100]
         }
     },
     name:{
