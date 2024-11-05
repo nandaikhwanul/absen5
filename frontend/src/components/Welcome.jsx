@@ -10,11 +10,7 @@ const Dashboard = () => {
         console.log('Current user state:', user); // Log user state to inspect the object
         if (user) {
             console.log('NIP:', user.nip); // Log the NIP value
-            const data = JSON.stringify({
-                nip: user.nip ? String(user.nip) : '', // Ensure NIP is a string
-                name: user.name,
-                email: user.email
-            });
+            const data = String(user.nip);
 
             QRCode.toDataURL(data, { errorCorrectionLevel: 'H' })
                 .then(url => {

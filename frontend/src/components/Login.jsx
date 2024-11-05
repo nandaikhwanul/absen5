@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { LoginUser, reset, getMe } from "../features/authSlice"; // Import getMe
+import { LoginUser, reset, getMe } from "../features/authSlice"; 
+import logo from "../assets/logo.png";
 
 const Login = () => {
     const [nip, setNip] = useState("");
@@ -12,29 +13,30 @@ const Login = () => {
 
     useEffect(() => {
         if (isSuccess) {
-            dispatch(getMe()); // Trigger getMe after successful login
+            dispatch(getMe()); 
         }
         if (user || isSuccess) {
             navigate("/dashboard");
         }
         return () => {
-            dispatch(reset()); // Reset state on component unmount
+            dispatch(reset()); 
         };
     }, [user, isSuccess, dispatch, navigate]);
 
     const Auth = (e) => {
         e.preventDefault();
-        dispatch(LoginUser({ nip, password })); // Pass nip instead of email
+        dispatch(LoginUser({ nip, password }));
     };
 
     return (
-        <section className="flex justify-center items-center h-screen overflow-hidden">
+        <section className="flex justify-center items-center h-screen overflow-hidden font-sans">
             <div className="bg-gray-100 flex justify-center items-center h-screen w-full">
-                <div className="w-1/2 h-screen hidden lg:block">
+                <div className="w-1/2 h-screen hidden lg:block bg-red-950">
+                    <h1 className="text-white text-4xl text-center relative top-20 font-bold drop-shadow-lg ">Parking Present</h1>
                     <img
-                        src="https://placehold.co/800x/667fff/ffffff.png?text=Your+Image&font=Montserrat"
+                        src={logo}
                         alt="Placeholder"
-                        className="object-cover w-full h-full"
+                        className="object-cover w-full h-full drop-shadow-xl"
                     />
                 </div>
                 <div className="lg:p-36 md:p-52 sm:p-20 p-8 w-full lg:w-1/2">
