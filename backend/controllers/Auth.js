@@ -27,8 +27,8 @@ export const Login = async (req, res) => {
             console.log("Login time updated for user:", user.nip);
         }
 
-        const { uuid, name, email, role } = user;
-        res.status(200).json({ uuid, name, email, role });
+        const { uuid, name, role } = user;
+        res.status(200).json({ uuid, name, role });
     } catch (error) {
         console.error("Error during login:", error);
         res.status(500).json({ msg: "Terjadi kesalahan server" });
@@ -70,7 +70,7 @@ export const Me = async (req, res) => {
 
         const user = await User.findOne({
             where: { uuid: req.session.userId },
-            attributes: ['uuid', 'name', 'email', 'role', 'nip', 'loginTime', 'logoutTime'] // Tambahkan 'loginTime' dan 'logoutTime' di sini
+            attributes: ['uuid', 'name', 'role', 'nip', 'loginTime', 'logoutTime'] // Tambahkan 'loginTime' dan 'logoutTime' di sini
         });
 
         if (!user) {

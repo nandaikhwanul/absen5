@@ -22,17 +22,12 @@ const Users = db.define('users', {
     },
     name: {
         type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-            notEmpty: true
-        }
+        allowNull: true,
     },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-            notEmpty: true,
-            isEmail: true
         }
     },
     password: {

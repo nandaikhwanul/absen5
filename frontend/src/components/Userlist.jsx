@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getMe } from "../features/authSlice";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import * as XLSX from "xlsx"; // Import xlsx library
 
 const Userlist = () => {
   const [users, setUsers] = useState([]);
@@ -39,16 +40,61 @@ const Userlist = () => {
     const results = users.filter((user) =>
       user.name.toLowerCase().includes(searchTerm) ||
       user.nip.toLowerCase().includes(searchTerm) ||
-      user.role.toLowerCase().includes(searchTerm)
+      user.role.toLowerCase().includes(searchTerm) ||
+      (user.email && user.email.toLowerCase().includes(searchTerm)) // Adding email search
     );
     setFilteredUsers(results);
   };
 
+  // Function to handle Excel file upload
+  const handleImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const binaryStr = event.target.result;
+      const workbook = XLSX.read(binaryStr, { type: "binary" });
+
+      // Assuming the first sheet contains the user data
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json(sheet);
+
+      // You can send the data to the backend here or process it as needed
+      try {
+        await axios.post("http://localhost:5000/import-users", { users: data });
+        getUsers(); // Refresh user list after import
+      } catch (error) {
+        console.error("Error importing users:", error);
+      }
+    };
+
+    reader.readAsBinaryString(file);
+  };
+
   return (
-    <div className="w-full flex justify-start items-start h-screen relative top-10 left-20">
-      <div className="w-full relative shadow-md sm:rounded-lg">
+    <div className=" w-[400px] sm:w-[600px] lg:w-[1024px] flex justify-start items-start h-screen relative top-10 sm:left-32 lg:left-32">
+      <div className="w-full relative sm:rounded-lg">
         <div className="p-4">
-          <Link to="/users/add" className="button is-primary mb-2">Add New</Link>
+          <div className="flex justify-between mb-4">
+            <Link to="/users/add" className="button is-primary mb-2">Add New</Link>
+
+            {/* Import button for Excel */}
+            {/* <label
+              htmlFor="excel-upload"
+              className="button is-secondary mb-2 cursor-pointer"
+            >
+              Import from Excel
+            </label>
+            <input
+              type="file"
+              id="excel-upload"
+              className="hidden"
+              accept=".xlsx, .xls"
+              onChange={handleImport}
+            /> */}
+          </div>
           <label htmlFor="table-search" className="sr-only">Search</label>
           <div className="relative mt-1">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -59,27 +105,28 @@ const Userlist = () => {
             <input
               type="text"
               id="table-search"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-80 pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full sm:w-80 pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="Search for users"
               onChange={handleSearch}
             />
           </div>
         </div>
-        <div className="overflow-x-auto sm:overflow-x-hidden">
-          <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-              <tr>
-                <th scope="col" className="px-4 py-3">#</th>
-                <th scope="col" className="px-4 py-3">Nama</th>
-                <th scope="col" className="px-4 py-3">NIP</th>
-                <th scope="col" className="px-4 py-3">Role</th>
-                <th scope="col" className="px-4 py-3">Last Login</th>
-                <th scope="col" className="px-4 py-3">Last Logout</th>
-                <th scope="col" className="px-4 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((user, index) => (
+        <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
+                <table id="studentTable" class="min-w-full bg-white border border-gray-200">
+                    <thead class="">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIP</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Login</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Logout</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ubah</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredUsers.map((user, index) => (
                 <tr key={user.uuid} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                   <td className="px-4 py-4">{index + 1}</td>
                   <td className="px-4 py-4 font-medium text-gray-900 dark:text-white whitespace-normal break-words max-w-xs">
@@ -87,6 +134,7 @@ const Userlist = () => {
                   </td>
                   <td className="px-4 py-4">{user.nip}</td>
                   <td className="px-4 py-4">{user.role}</td>
+                  <td className="px-4 py-4">{user.email}</td> {/* Displaying email */}
                   <td className="px-4 py-4">{user.loginTime ? new Date(user.loginTime).toLocaleString() : "N/A"}</td>
                   <td className="px-4 py-4">{user.logoutTime ? new Date(user.logoutTime).toLocaleString() : "N/A"}</td>
                   <td className="px-4 py-4 text-right">
@@ -95,9 +143,9 @@ const Userlist = () => {
                   </td>
                 </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
+                    </tbody>
+                </table>
+            </div>
       </div>
     </div>
   );

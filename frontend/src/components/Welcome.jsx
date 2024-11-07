@@ -7,12 +7,14 @@ const Dashboard = () => {
     const [qrCodeURL, setQrCodeURL] = useState('');
 
     useEffect(() => {
-        console.log('Current user state:', user); // Log user state to inspect the object
         if (user) {
-            console.log('NIP:', user.nip); // Log the NIP value
-            const data = String(user.nip);
+            const data = JSON.stringify({
+                name: user.name,
+                nip: user.nip,
+                email: user.email,
+            });
 
-            QRCode.toDataURL(data, { errorCorrectionLevel: 'H' })
+            QRCode.toDataURL(data, { errorCorrectionLevel: 'H', width: 200 })
                 .then(url => {
                     setQrCodeURL(url);
                 })
@@ -23,31 +25,35 @@ const Dashboard = () => {
     }, [user]);
 
     return (
-        <div className="">
-            {user ? (
-                <div className="mt-6 p-4 ">
-                    <h2 className="text-xl font-semibold text-gray-700">User Information</h2>
-                    <p className="mt-2 text-gray-600">Name: <span className="font-medium">{user.name}</span></p>
-                    <p className="mt-1 text-gray-600">NIP: <span className="font-medium">{user.nip || 'N/A'}</span></p>
-                    <p className="mt-1 text-gray-600">Email: <span className="font-medium">{user.email}</span></p>
-                    
-                    {/* Condition to check if user is not an admin */}
-                    {user.role !== 'admin' && (
-                        <>
-                            <h3 className="mt-4 text-lg font-semibold text-gray-700">Your QR Code</h3>
-                            <div className="flex flex-col items-center mt-4">
-                                {qrCodeURL ? (
-                                    <img src={qrCodeURL} alt="QR Code" className="w-48 h-48 mb-4" />
-                                ) : (
-                                    <p className="text-gray-500">Generating QR Code...</p>
-                                )}
-                            </div>
-                        </>
-                    )}
+        <div className="flex p-6 justify-center items-center min-h-screen w-full ">
+            {/* Information Section */}
+            <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md mr-8 border">
+                <h1 className="text-2xl font-semibold mb-6">User Information</h1>
+                
+                <div className="mb-4">
+                    <p className="font-semibold">Name:</p>
+                    <p className="text-gray-700">{user?.name || 'N/A'}</p>
                 </div>
-            ) : (
-                <p className="mt-4 text-gray-500">No user information available. Please log in.</p>
-            )}
+
+                <div className="mb-4">
+                    <p className="font-semibold">NIP:</p>
+                    <p className="text-gray-700">{user?.nip || 'N/A'}</p>
+                </div>
+
+                <div className="mb-4">
+                    <p className="font-semibold">Email:</p>
+                    <p className="text-gray-700">{user?.email || 'N/A'}</p>
+                </div>
+            </div>
+
+            {/* QR Code Display Section */}
+            <div className="mt-8 p-4  rounded-lg shadow-lg w-96 h-82 border">
+                {qrCodeURL ? (
+                    <img src={qrCodeURL} alt="Generated QR Code" className="w-full h-auto" />
+                ) : (
+                    <p>No QR Code available</p>
+                )}
+            </div>
         </div>
     );
 };

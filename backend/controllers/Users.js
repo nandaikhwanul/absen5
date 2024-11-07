@@ -1,10 +1,12 @@
 import User from "../models/UserModel.js";
+import Dosen from "../models/DosenModel.js"; // Import the Dosen model
 import argon2 from "argon2";
 
+// Get all users
 export const getUsers = async (req, res) => {
     try {
         const response = await User.findAll({
-            attributes: ['uuid', 'name', 'email', 'role', 'nip', 'loginTime', 'logoutTime'] // Include loginTime and logoutTime
+            attributes: ['uuid', 'name', 'role', 'nip', 'email', 'loginTime', 'logoutTime'] // Include email
         });
         res.status(200).json(response);
     } catch (error) {
@@ -12,11 +14,11 @@ export const getUsers = async (req, res) => {
     }
 };
 
-
+// Get user by ID
 export const getUserById = async (req, res) => {
     try {
         const response = await User.findOne({
-            attributes: ['uuid', 'name', 'email', 'role'],
+            attributes: ['uuid', 'name', 'role', 'email'], // Include email
             where: {
                 uuid: req.params.id
             }
@@ -28,15 +30,17 @@ export const getUserById = async (req, res) => {
     }
 };
 
+// Create user
+// Create user
 export const createUser = async (req, res) => {
-    const { name, email, password, confirmPassword, role, nip } = req.body;
+    const { nip, email, password, confirmPassword, role } = req.body;
 
     const validRoles = ['admin', 'dosen'];
     if (!validRoles.includes(role)) {
         return res.status(400).json({ msg: "Role tidak valid" });
     }
 
-    if (!name || !email || !nip || !password || !confirmPassword) {
+    if (!nip || !password || !confirmPassword || !role) {
         return res.status(400).json({ msg: "Semua bidang diperlukan" });
     }
 
@@ -45,24 +49,36 @@ export const createUser = async (req, res) => {
     }
 
     try {
-        const existingUser = await User.findOne({ where: { email } });
-        if (existingUser) {
-            return res.status(400).json({ msg: "Email sudah terdaftar" });
+        // Check if NIP exists in the dosens table
+        const dosen = await Dosen.findOne({ where: { nip } });
+        if (!dosen) {
+            return res.status(400).json({ msg: "NIP tidak ditemukan di tabel dosens" });
         }
 
+        // Check if NIP is already registered in the users table
         const existingNip = await User.findOne({ where: { nip } });
         if (existingNip) {
-            return res.status(400).json({ msg: "NIP sudah terdaftar" });
+            return res.status(400).json({ msg: "NIP sudah terdaftar sebagai user" });
         }
 
+        // Check if the email is already registered (only if email is provided)
+        if (email) {
+            const existingEmail = await User.findOne({ where: { email } });
+            if (existingEmail) {
+                return res.status(400).json({ msg: "Email sudah terdaftar" });
+            }
+        }
+
+        // Hash the password
         const hashPassword = await argon2.hash(password);
 
+        // Create new user with name from dosens table
         const newUser = await User.create({
-            name,
-            email,
+            nip,
+            email, // Can be null if not provided
             password: hashPassword,
             role,
-            nip
+            name: dosen.name // Set the name from dosens table
         });
 
         res.status(201).json({
@@ -70,8 +86,8 @@ export const createUser = async (req, res) => {
             user: {
                 uuid: newUser.uuid,
                 name: newUser.name,
-                email: newUser.email,
-                role: newUser.role
+                role: newUser.role,
+                email: newUser.email // Include email in response
             }
         });
     } catch (error) {
@@ -79,6 +95,8 @@ export const createUser = async (req, res) => {
     }
 };
 
+
+// Update user
 export const updateUser = async (req, res) => {
     const user = await User.findOne({
         where: {
@@ -88,7 +106,7 @@ export const updateUser = async (req, res) => {
 
     if (!user) return res.status(404).json({ msg: "User tidak ditemukan" });
 
-    const { name, email, password, confirmPassword, role } = req.body;
+    const { name, password, confirmPassword, role, email } = req.body;
     let hashPassword = user.password;
     if (password) {
         if (password !== confirmPassword) {
@@ -100,9 +118,9 @@ export const updateUser = async (req, res) => {
     try {
         await User.update({
             name,
-            email,
             password: hashPassword,
-            role
+            role,
+            email // Update email
         }, {
             where: {
                 uuid: req.params.id
@@ -114,6 +132,7 @@ export const updateUser = async (req, res) => {
     }
 };
 
+// Delete user
 export const deleteUser = async (req, res) => {
     try {
         const user = await User.findOne({
