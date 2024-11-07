@@ -1,0 +1,51 @@
+### Register a new user
+POST http://localhost:5000/users
+Content-Type: application/json
+
+{
+    "email": "nanda.ikhwanuls@gmail.com",
+    "password": "123",
+    "confirmPassword": "123",
+    "role": "admin",
+    "nip": "199309192022031004"
+}
+
+
+### Login User
+POST http://localhost:5000/login
+Content-Type: application/json
+
+{
+  "nip": "12",
+  "password": "123"
+}
+
+###
+//get all user
+GET http://localhost:5000/users
+
+### Logout User
+DELETE http://localhost:5000/logout
+Content-Type: application/json
+
+### Update User
+PATCH http://localhost:5000/users/7ccb418b-49fc-448e-ae79-d2765318e54e
+Content-Type: application/json
+
+{
+    "email": "nanda.ikhwanuls@gmail.com",
+    "password": "123",
+    "confirmPassword": "123",
+    "role": "admin",
+    "nip": "199309192022031004"
+}
+
+### Get User by ID
+GET http://localhost:5000/users/1
+Content-Type: application/json
+
+
+
+
+
+
