@@ -132,6 +132,7 @@ export const updateUser = async (req, res) => {
     }
 };
 
+
 // Delete user
 export const deleteUser = async (req, res) => {
     try {
@@ -156,3 +157,96 @@ export const deleteUser = async (req, res) => {
         res.status(500).json({ msg: error.message });
     }
 };
+
+// Assuming you're using Sequelize for ORM, adjust it according to your setup
+export const addDosen = async (req, res) => {
+    const { nip, name } = req.body;
+
+    // Check if both nip and name are provided
+    if (!nip || !name) {
+        return res.status(400).json({ msg: "NIP and Name are required" });
+    }
+
+    try {
+        // Check if the NIP already exists in the database
+        const existingDosen = await Dosen.findOne({ where: { nip } });
+
+        if (existingDosen) {
+            return res.status(400).json({ msg: "NIP already exists" });
+        }
+
+        // Create a new Dosen
+        const newDosen = await Dosen.create({
+            nip,
+            name,
+        });
+
+        res.status(201).json({ msg: "Dosen added successfully", dosen: newDosen });
+    } catch (error) {
+        res.status(500).json({ msg: error.message });
+    }
+};
+
+// Function for adding multiple Dosens (bulk insert)
+export const addDosensBulk = async (req, res) => {
+    const dosenData = req.body.dosenData; // Array of dosens to be inserted
+
+    // Check if dosenData is valid
+    if (!Array.isArray(dosenData) || dosenData.length === 0) {
+        return res.status(400).json({ msg: "No dosen data provided" });
+    }
+
+    // Validate each Dosen's data
+    for (const data of dosenData) {
+        if (!data.nip || !data.name) {
+            return res.status(400).json({ msg: "All fields are required for each Dosen" });
+        }
+    }
+
+    try {
+        // Extract all NIPs from the incoming data
+        const nips = dosenData.map(data => data.nip);
+
+        // Check if any of the NIPs already exist in the database
+        const existingDosens = await Dosen.findAll({
+            where: {
+                nip: nips,
+            },
+        });
+
+        // If there are existing dosens with the same NIPs, return an error message
+        if (existingDosens.length > 0) {
+            const existingNips = existingDosens.map(dosen => dosen.nip);
+            return res.status(400).json({ msg: `The following NIPs already exist: ${existingNips.join(", ")}` });
+        }
+
+        // Insert the new dosens using bulkCreate
+        const newDosens = await Dosen.bulkCreate(dosenData);
+
+        res.status(201).json({ msg: "Dosens added successfully", dosens: newDosens });
+    } catch (error) {
+        res.status(500).json({ msg: error.message });
+    }
+};
+
+// Get all dosens
+export const getDosens = async (req, res) => {
+    try {
+        const response = await Dosen.findAll({
+            attributes: ['nip', 'name'] // Include only NIP and Name fields, or customize as needed
+        });
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(500).json({ msg: error.message });
+    }
+};
+
+
+
+
+
+
+
+
+
+

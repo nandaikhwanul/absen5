@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const FormAddUser = () => {
+const FormAddDosenManually = () => {
   const [nip, setNip] = useState("");
   const [email, setEmail] = useState(""); // Email is now optional
   const [password, setPassword] = useState("");
@@ -52,7 +52,7 @@ const FormAddUser = () => {
 
             {/* Form Section */}
             <form className="p-6 grid grid-cols" onSubmit={saveUser}>
-              <h1 className="font-bold text-2xl text-center">ADD USER</h1>
+              <h1 className="font-bold text-2xl text-center">ADD User & Role</h1>
 
               <div className="flex flex-col mt-2">
                 <label htmlFor="nip" className="hidden">NIP</label>
@@ -102,4 +102,4 @@ const FormAddUser = () => {
   );
 };
 
-export default FormAddUser;
+export default FormAddDosenManually;

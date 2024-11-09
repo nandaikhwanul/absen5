@@ -6,7 +6,7 @@ import db from "./config/Database.js";
 import SequelizeStore from "connect-session-sequelize";
 import UserRoute from "./routes/UserRoute.js";
 import AuthRoute from "./routes/AuthRoute.js";
-import Dosen from "./models/DosenModel.js"; // Import the Dosen model
+import DosenRoute from "./routes/DosenRoute.js"
 
 dotenv.config();
 
@@ -18,9 +18,9 @@ const store = new sessionStore({
     db: db
 });
 
-(async () => {
-    await db.sync(); // Ensure all models are synced, including Dosen
-})();
+// (async () => {
+//     await db.sync(); // Ensure all models are synced, including Dosen
+// })();
 
 app.use(session({
     secret: process.env.SESS_SECRET,
@@ -39,6 +39,7 @@ app.use(cors({
 app.use(express.json());
 app.use(UserRoute);
 app.use(AuthRoute);
+app.use(DosenRoute);
 
 // Uncomment if you want the session store to also sync tables
 // store.sync();

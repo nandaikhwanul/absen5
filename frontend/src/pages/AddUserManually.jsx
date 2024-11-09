@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import Layout from "./Layout";
-import FormAddDosen from "../components/FormAddDosen"; // Correct import path
 import FormAddDosenManually from "../components/FormAddDosenManually"; // Correct import path
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -26,7 +25,7 @@ const AddUser = () => {
 
     return (
         <Layout>
-            <FormAddDosen />
+            <FormAddDosenManually />
         </Layout>
     );
 };

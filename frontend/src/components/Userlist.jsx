@@ -69,31 +69,16 @@ const Userlist = () => {
         console.error("Error importing users:", error);
       }
     };
-
-    reader.readAsBinaryString(file);
   };
 
   return (
     <div className=" w-[400px] sm:w-[600px] lg:w-[1024px] flex justify-start items-start h-screen relative top-10 sm:left-32 lg:left-32">
       <div className="w-full relative sm:rounded-lg">
         <div className="p-4">
-          <div className="flex justify-between mb-4">
-            <Link to="/users/add" className="button is-primary mb-2">Add New</Link>
-
-            {/* Import button for Excel */}
-            {/* <label
-              htmlFor="excel-upload"
-              className="button is-secondary mb-2 cursor-pointer"
-            >
-              Import from Excel
-            </label>
-            <input
-              type="file"
-              id="excel-upload"
-              className="hidden"
-              accept=".xlsx, .xls"
-              onChange={handleImport}
-            /> */}
+          <div className="flex justify-start gap-3 mb-4">
+            <Link to="/users/Dosen" className="button is-primary mb-2">Add Dosens</Link>
+            <Link to="/users/DosenManually" className="button bg-blue-500 text-white hover:bg-blue-700 hover:text-white">Add Dosen Manually</Link>
+            <Link to="/users/list" className="button bg-blue-500 text-white hover:bg-blue-700 hover:text-white">List Dosen</Link>
           </div>
           <label htmlFor="table-search" className="sr-only">Search</label>
           <div className="relative mt-1">
